@@ -18,21 +18,23 @@ func (n Node) Key() int {
 }
 
 // bufferpipe
-func Example_checkinchan_buffer() {
+func Example_buffer() {
 	b1, err := bufferpipe.New[Node](1)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	_, err = bufferpipe.NewWithPipeline[Node](1, b1)
+	b2, err := bufferpipe.NewWithPipeline[Node](1, b1)
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	b2.Close()
 
 	// Output:
 }
 
 // containerpipe
-func Example_checkinchan_container() {
+func Example_container() {
 	b1 := containerpipe.New[int, Node]()
 	b2 := containerpipe.NewWithPipeline[int, Node](
 		logpipe.NewWithPipeline[Node](b1),
