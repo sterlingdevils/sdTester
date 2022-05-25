@@ -40,7 +40,7 @@ func main() {
 	fmt.Printf("Creating Pipeline")
 	p := createpipeline()
 
-	time.Sleep(2029 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	p.Close()
 }
