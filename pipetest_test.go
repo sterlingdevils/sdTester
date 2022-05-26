@@ -37,7 +37,9 @@ func Example_buffer() {
 //    CP -> LogPipe -> CP
 func Example_container() {
 	b1 := containerpipe.New[int, Node]()
-	b2 := containerpipe.NewWithPipeline[int, Node](logpipe.NewWithPipeline[Node](b1))
+	b2 := containerpipe.NewWithPipeline[int, Node](
+		logpipe.NewWithPipeline[Node](b1),
+	)
 
 	b1.InChan() <- Node{id: 1}
 
