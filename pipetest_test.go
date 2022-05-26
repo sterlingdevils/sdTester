@@ -4,9 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/sterlingdevils/pipelines/pkg/bufferpipe"
-	"github.com/sterlingdevils/pipelines/pkg/containerpipe"
-	"github.com/sterlingdevils/pipelines/pkg/logpipe"
+	"github.com/sterlingdevils/pipelines/bufferpipe"
+	"github.com/sterlingdevils/pipelines/containerpipe"
+	"github.com/sterlingdevils/pipelines/logpipe"
 )
 
 type Node struct {

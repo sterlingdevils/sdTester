@@ -5,13 +5,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/sterlingdevils/pipelines/pkg/pipeline"
-	"github.com/sterlingdevils/pipelines/pkg/udppipe"
+	"github.com/sterlingdevils/pipelines"
+	"github.com/sterlingdevils/pipelines/udppipe"
 	"github.com/sterlingdevils/ratelimiterpipe/pkg/ratelimiterpipe"
 )
 
 // Creates a pipeline of UDP pipes connected by a rate limiter pipe
-func createpipeline() pipeline.Pipelineable[*udppipe.Packet] {
+func createpipeline() pipelines.Pipeliner[*udppipe.Packet] {
 	// Creates new UDP pipe on port 9876
 	inpipe, err := udppipe.New(9876)
 	if err != nil {
