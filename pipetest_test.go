@@ -1,12 +1,14 @@
 package main_test
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/sterlingdevils/pipelines/bufferpipe"
 	"github.com/sterlingdevils/pipelines/containerpipe"
 	"github.com/sterlingdevils/pipelines/logpipe"
+	"github.com/sterlingdevils/pipelines/udppipe"
 )
 
 type Node struct {
@@ -58,4 +60,16 @@ func Example_container() {
 func Example_udp() {
 
 	// Output:
+}
+
+func Example_packet() {
+	p := udppipe.Packet{DataSlice: []byte{
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x31, 0x32, 0x33,
+	}}
+
+	k := udppipe.KeyablePacket(p)
+	fmt.Println(k.Key())
+
+	// Output:
+	// 578437695752307201
 }

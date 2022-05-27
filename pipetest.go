@@ -29,8 +29,8 @@ func createpipeline() pipelines.Pipeliner[*udppipe.Packet] {
 	ptokp := converterpipe.NewWithPipeline[*udppipe.Packet](
 		func(i *udppipe.Packet) *udppipe.KeyablePacket {
 			kp := udppipe.KeyablePacket{
-				Addr: i.Addr,
-				Data: mysn.AddInc(i.Data),
+				Addr:      i.Addr,
+				DataSlice: mysn.AddInc(i.DataSlice),
 			}
 			return &kp
 		}, l1)
@@ -41,10 +41,10 @@ func createpipeline() pipelines.Pipeliner[*udppipe.Packet] {
 	// Create Convert pipe to go from Keyable Packet to Packet
 	kptop := converterpipe.NewWithPipeline[*udppipe.KeyablePacket](
 		func(i *udppipe.KeyablePacket) *udppipe.Packet {
-			d, _, _ := serialnum.Remove(i.Data)
+			d, _, _ := serialnum.Remove(i.DataSlice)
 			p := udppipe.Packet{
-				Addr: i.Addr,
-				Data: d,
+				Addr:      i.Addr,
+				DataSlice: d,
 			}
 			return &p
 		}, l2)
