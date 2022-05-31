@@ -13,7 +13,7 @@ import (
 )
 
 // Creates a pipeline of UDP pipes connected by a rate limiter pipe
-func createpipeline() pipelines.Pipeliner[udppipe.Packetable] {
+func createpipeline() pipelines.Pipeline[udppipe.Packetable] {
 	mysn := serialnum.New()
 
 	// Creates new UDP pipe on port 9876
