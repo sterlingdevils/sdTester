@@ -21,11 +21,11 @@ func (n Node) Key() int {
 
 // bufferpipe
 func Example_buffer() {
-	b1, err := bufferpipe.New[Node](1)
+	b1, err := bufferpipe.New[int](1)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	b2, err := bufferpipe.NewWithPipeline[Node](1, b1)
+	b2, err := bufferpipe.NewWithPipeline[int](1, b1)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -39,6 +39,7 @@ func Example_buffer() {
 //    CP -> LogPipe -> CP
 func Example_container() {
 	b1 := containerpipe.New[int, Node]()
+
 	b2 := containerpipe.NewWithPipeline[int, Node](
 		logpipe.NewWithPipeline[Node]("log1", b1),
 	)
