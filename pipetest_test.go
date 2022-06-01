@@ -87,14 +87,12 @@ func (d DataHolder) Data() []byte {
 	return d.data
 }
 
-func Example() {
+func Example_pipelineconverter() {
+	// Create Logger
 	logger := logpipe.New[DataHolder]("inlog")
 
 	// Can't Use logger directly as a Dataer,  Use a convert pipe to change the channel
-	conv := converterpipe.NewWithPipeline[DataHolder](
-		func(i DataHolder) pipelines.Dataer {
-			return i
-		}, logger)
+	conv := converterpipe.NewWithPipeline[DataHolder](func(i DataHolder) pipelines.Dataer { return i }, logger)
 
 	os.Chdir("/tmp")
 	fd := filedump.NewWithPipeline(conv)
