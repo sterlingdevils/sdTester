@@ -26,20 +26,20 @@ func createpipeline() pipelines.Pipeline[udppipe.Packetable] {
 	l1 := logpipe.NewWithPipeline[udppipe.Packetable]("log1", inpipe)
 
 	// Create Convert pipe to go from Packet to KeyablePacket by inserting a serial number
-	ptokp := converterpipe.NewWithPipeline[udppipe.Packetable](
+	ptokp := converterpipe.NewWithPipeline[udppipe.Packetable](l1,
 		func(i udppipe.Packetable) (udppipe.Packetable, error) {
 			kp := &udppipe.KeyablePacket{
 				Addr:      i.Address(),
 				DataSlice: mysn.AddInc(i.Data()),
 			}
 			return kp, nil
-		}, l1)
+		})
 
 	// Create Logger
 	l2 := logpipe.NewWithPipeline[udppipe.Packetable]("kp", ptokp)
 
 	// Create Convert pipe to go from Keyable Packet to Packet
-	kptop := converterpipe.NewWithPipeline[udppipe.Packetable](
+	kptop := converterpipe.NewWithPipeline[udppipe.Packetable](l2,
 		func(i udppipe.Packetable) (udppipe.Packetable, error) {
 			d, _, _ := serialnum.Remove(i.Data())
 			p := &udppipe.Packet{
@@ -47,7 +47,7 @@ func createpipeline() pipelines.Pipeline[udppipe.Packetable] {
 				DataSlice: d,
 			}
 			return p, nil
-		}, l2)
+		})
 
 	// Create Logger
 	l3 := logpipe.NewWithPipeline[udppipe.Packetable]("log3", kptop)
