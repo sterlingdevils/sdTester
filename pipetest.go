@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/sterlingdevils/gobase/pkg/serialnum"
+	"github.com/sterlingdevils/gobase/serialnum"
 	"github.com/sterlingdevils/pipelines"
 	"github.com/sterlingdevils/pipelines/converterpipe"
 	"github.com/sterlingdevils/pipelines/logpipe"
