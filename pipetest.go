@@ -14,7 +14,7 @@ func createpipeline() pipelines.Pipeline[pipelines.Packetable] {
 	mysn := serialnum.New()
 
 	// Creates new UDP pipe on port 9876
-	inpipe, err := pipelines.UDP{}.New(9876)
+	inpipe, err := pipelines.UDPPipe{}.New(9876)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -52,7 +52,7 @@ func createpipeline() pipelines.Pipeline[pipelines.Packetable] {
 	l3 := logpipetype.NewWithPipeline("log3", kptop)
 
 	// Creates a new outpipe using the ratelimiter pipe on port 9999
-	outpipe, err := pipelines.UDP{}.NewWithPipeline(9999, l3)
+	outpipe, err := pipelines.UDPPipe{}.NewWithPipeline(9999, l3)
 	if err != nil {
 		log.Fatalln(err)
 	}
