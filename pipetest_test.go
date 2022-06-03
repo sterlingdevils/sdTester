@@ -7,12 +7,6 @@ import (
 	"time"
 
 	"github.com/sterlingdevils/pipelines"
-	"github.com/sterlingdevils/pipelines/bufferpipe"
-	"github.com/sterlingdevils/pipelines/containerpipe"
-	"github.com/sterlingdevils/pipelines/converterpipe"
-	"github.com/sterlingdevils/pipelines/filedump"
-	"github.com/sterlingdevils/pipelines/logpipe"
-	"github.com/sterlingdevils/pipelines/udppipe"
 )
 
 type Node struct {
@@ -24,12 +18,12 @@ func (n Node) Key() int {
 }
 
 // bufferpipe
-func Example_buffer() {
-	b1, err := bufferpipe.New[int](1)
+func ExampleBufferPipe() {
+	b1, err := pipelines.BufferPipe[int]{}.New(1)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	b2, err := bufferpipe.NewWithPipeline[int](1, b1)
+	b2, err := pipelines.BufferPipe[int]{}.NewWithPipeline(1, b1)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -41,12 +35,10 @@ func Example_buffer() {
 
 // containerpipe
 //    CP -> LogPipe -> CP
-func Example_container() {
-	b1 := containerpipe.New[int, Node]()
-
-	b2 := containerpipe.NewWithPipeline[int, Node](
-		logpipe.NewWithPipeline[Node]("log1", b1),
-	)
+func ExampleContainerPipe() {
+	cp := pipelines.ContainerPipe[int, Node]{}
+	b1 := cp.New()
+	b2 := cp.NewWithPipeline(pipelines.LogPipe[Node]{}.NewWithPipeline("log1", b1))
 
 	b1.InChan() <- Node{id: 1}
 
@@ -68,11 +60,11 @@ func Example_udp() {
 }
 
 func Example_packet() {
-	p := udppipe.Packet{DataSlice: []byte{
+	p := pipelines.Packet{DataSlice: []byte{
 		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x31, 0x32, 0x33,
 	}}
 
-	k := udppipe.KeyablePacket(p)
+	k := pipelines.KeyablePacket(p)
 	fmt.Println(k.Key())
 
 	// Output:
@@ -87,20 +79,22 @@ func (d DataHolder) Data() []byte {
 	return d.data
 }
 
-func Example_pipelineconverter() {
+func ExampleConverterPipe() {
 	// Create Logger
-	logger := logpipe.New[DataHolder]("inlog")
+	logger := pipelines.LogPipe[DataHolder]{}.New("inlog")
 
 	// Can't Use logger directly as a Dataer,  Use a convert pipe to change the channel
-	conv := converterpipe.NewWithPipeline[DataHolder](logger, func(i DataHolder) (pipelines.Dataer, error) { return i, nil })
+	//	conv := converterpipe.NewWithPipeline[DataHolder](logger, func(i DataHolder) (pipelines.Dataer, error) { return i, nil })
+
+	conv2 := pipelines.TypeConverterPipe[DataHolder, pipelines.Dataer]{}.NewWithPipeline(logger)
 
 	os.Chdir("/tmp")
-	fd := filedump.NewWithPipeline(conv)
+	fd := pipelines.FileDump{}.NewWithPipeline(conv2)
 
 	// Send a Packet
-	fd.InChan() <- udppipe.Packet{DataSlice: []byte("Hello, World!")}
-	fd.InChan() <- udppipe.Packet{DataSlice: []byte("Gimme Jimmy")}
-	fd.InChan() <- udppipe.Packet{DataSlice: []byte("See what happens with special characters\nOn this line")}
+	fd.InChan() <- pipelines.Packet{DataSlice: []byte("Hello, World!")}
+	fd.InChan() <- pipelines.Packet{DataSlice: []byte("Gimme Jimmy")}
+	fd.InChan() <- pipelines.Packet{DataSlice: []byte("See what happens with special characters\nOn this line")}
 
 	fd.InChan() <- DataHolder{data: []byte("This is another type of input")}
 

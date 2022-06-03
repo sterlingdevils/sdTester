@@ -7,28 +7,27 @@ import (
 
 	"github.com/sterlingdevils/gobase/serialnum"
 	"github.com/sterlingdevils/pipelines"
-	"github.com/sterlingdevils/pipelines/converterpipe"
-	"github.com/sterlingdevils/pipelines/logpipe"
-	"github.com/sterlingdevils/pipelines/udppipe"
 )
 
 // Creates a pipeline of UDP pipes connected by a rate limiter pipe
-func createpipeline() pipelines.Pipeline[udppipe.Packetable] {
+func createpipeline() pipelines.Pipeline[pipelines.Packetable] {
 	mysn := serialnum.New()
 
 	// Creates new UDP pipe on port 9876
-	inpipe, err := udppipe.New(9876)
+	inpipe, err := pipelines.UDP{}.New(9876)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	logpipetype := pipelines.LogPipe[pipelines.Packetable]{}
 	// Create Logger
-	l1 := logpipe.NewWithPipeline[udppipe.Packetable]("log1", inpipe)
+	l1 := logpipetype.NewWithPipeline("log1", inpipe)
 
+	ptp := pipelines.ConverterPipe[pipelines.Packetable, pipelines.Packetable]{}
 	// Create Convert pipe to go from Packet to KeyablePacket by inserting a serial number
-	ptokp := converterpipe.NewWithPipeline[udppipe.Packetable](l1,
-		func(i udppipe.Packetable) (udppipe.Packetable, error) {
-			kp := &udppipe.KeyablePacket{
+	ptokp := ptp.NewWithPipeline(l1,
+		func(i pipelines.Packetable) (pipelines.Packetable, error) {
+			kp := &pipelines.KeyablePacket{
 				Addr:      i.Address(),
 				DataSlice: mysn.AddInc(i.Data()),
 			}
@@ -36,13 +35,13 @@ func createpipeline() pipelines.Pipeline[udppipe.Packetable] {
 		})
 
 	// Create Logger
-	l2 := logpipe.NewWithPipeline[udppipe.Packetable]("kp", ptokp)
+	l2 := logpipetype.NewWithPipeline("kp", ptokp)
 
 	// Create Convert pipe to go from Keyable Packet to Packet
-	kptop := converterpipe.NewWithPipeline[udppipe.Packetable](l2,
-		func(i udppipe.Packetable) (udppipe.Packetable, error) {
+	kptop := ptp.NewWithPipeline(l2,
+		func(i pipelines.Packetable) (pipelines.Packetable, error) {
 			d, _, _ := serialnum.Remove(i.Data())
-			p := &udppipe.Packet{
+			p := &pipelines.Packet{
 				Addr:      i.Address(),
 				DataSlice: d,
 			}
@@ -50,10 +49,10 @@ func createpipeline() pipelines.Pipeline[udppipe.Packetable] {
 		})
 
 	// Create Logger
-	l3 := logpipe.NewWithPipeline[udppipe.Packetable]("log3", kptop)
+	l3 := logpipetype.NewWithPipeline("log3", kptop)
 
 	// Creates a new outpipe using the ratelimiter pipe on port 9999
-	outpipe, err := udppipe.NewWithPipeline(9999, l3)
+	outpipe, err := pipelines.UDP{}.NewWithPipeline(9999, l3)
 	if err != nil {
 		log.Fatalln(err)
 	}
