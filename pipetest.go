@@ -5,13 +5,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/sterlingdevils/gobase/serialnum"
+	"github.com/sterlingdevils/gobase"
 	"github.com/sterlingdevils/pipelines"
 )
 
 // Creates a pipeline of UDP pipes connected by a rate limiter pipe
 func createpipeline() pipelines.Pipeline[pipelines.Packetable] {
-	mysn := serialnum.New()
+	mysn := (&gobase.SerialNum{}).New()
 
 	// Creates new UDP pipe on port 9876
 	inpipe, err := pipelines.UDPPipe{}.New(9876)
@@ -40,7 +40,7 @@ func createpipeline() pipelines.Pipeline[pipelines.Packetable] {
 	// Create Convert pipe to go from Keyable Packet to Packet
 	kptop := ptp.NewWithPipeline(l2,
 		func(i pipelines.Packetable) (pipelines.Packetable, error) {
-			d, _, _ := serialnum.Remove(i.Data())
+			d, _, _ := (&gobase.SerialNum{}).Remove(i.Data())
 			p := &pipelines.Packet{
 				Addr:      i.Address(),
 				DataSlice: d,
